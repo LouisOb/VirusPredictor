@@ -22,8 +22,9 @@ class virus_species:
 		tuple_list = [self.virus_dna_list[i].ntuple(N) for i in range(len(self.virus_dna_list))]
 		return tuple_list
 	
-	def na_count(self,na_comb,na_comb1):
-		tuplelist=self.ntuple(len(na_comb))
-		count_0 = [tuplelist[i][na_comb] for i in range(len(tuplelist))]
-		count_1 = [tuplelist[i][na_comb1] for i in range(len(tuplelist))]	
-		return count_0,count_1
+	def na_count(self,na_comb):
+		count=[]
+		for Tup in na_comb:
+			tuplelist=self.ntuple(len(Tup))
+			count.append([[tuplelist[i][Tup]] for i in range(len(tuplelist))])
+		return tuple(count)
