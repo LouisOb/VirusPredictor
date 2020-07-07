@@ -31,36 +31,29 @@ DNA_MERS=readfile("MERS.fasta.txt")
 DNA_SARS_COV_1=readfile("SARS-CoV-1.fasta.txt")
 DNA_SARS_COV_2=readfile("SARS-CoV-2.fasta.txt")
 
-Tup = ["AAA","GTC","CCG"]
+Tup = ["GCA","GCC","AAA","TCC","ACT","GTT","GAC","GTA"]
 
 MERS_list=virus_species(DNA_MERS)
-MERS_x,MERS_y,MERS_z = MERS_list.na_count(Tup)
-MERS_x = np.array(MERS_x)
-MERS_y = np.array(MERS_y)
-MERS_z = np.array(MERS_z)
+MERS_1,MERS_2,MERS_3,MERS_4,MERS_5,MERS_6,MERS_7,MERS_8 = MERS_list.na_count(Tup)
 
-MERS_comb = np.concatenate((MERS_x,MERS_y,MERS_z),axis=1)
+MERS_comb = np.concatenate((MERS_1,MERS_2,MERS_3,MERS_4,MERS_5,MERS_6,MERS_7,MERS_8),axis=1)
 
 SARS_1_list=virus_species(DNA_SARS_COV_1)
-SARS_1_x,SARS_1_y,SARS_1_z = SARS_1_list.na_count(Tup)
-SARS_1_x=np.array(SARS_1_x)
-SARS_1_y=np.array(SARS_1_y)
-SARS_1_z=np.array(SARS_1_z)
+SARS_1_1,SARS_1_2,SARS_1_3,SARS_1_4,SARS_1_5,SARS_1_6,SARS_1_7,SARS_1_8 = SARS_1_list.na_count(Tup)
 
-SARS_1_comb = np.concatenate((SARS_1_x,SARS_1_y,SARS_1_z),axis=1)
+SARS_1_comb = np.concatenate((SARS_1_1,SARS_1_2,SARS_1_3,SARS_1_4,SARS_1_5,SARS_1_6,SARS_1_7,SARS_1_8),axis=1)
 
 SARS_2_list=virus_species(DNA_SARS_COV_2)
-SARS_2_x,SARS_2_y,SARS_2_z = SARS_2_list.na_count(Tup)
-SARS_2_x=np.array(SARS_2_x)
-SARS_2_y=np.array(SARS_2_y)
-SARS_2_z=np.array(SARS_2_z)
+SARS_2_1,SARS_2_2,SARS_2_3,SARS_2_4,SARS_2_5,SARS_2_6,SARS_2_7,SARS_2_8 = SARS_2_list.na_count(Tup)
 
-SARS_2_comb = np.concatenate((SARS_2_x,SARS_2_y,SARS_2_z),axis=1)
+SARS_2_comb = np.concatenate((SARS_2_1,SARS_2_2,SARS_2_3,SARS_2_4,SARS_2_5,SARS_2_6,SARS_2_7,SARS_2_8),axis=1)
 
 colour_mers=['blue' for i in range(len(MERS_comb))]
 colour_sars_1=['red' for i in range(len(SARS_1_comb))]
 colour_sars_2=['green' for i in range(len(SARS_2_comb))]
 colour=colour_mers+colour_sars_1+colour_sars_2
+
+
 virus_comb = np.concatenate((MERS_comb,SARS_1_comb,SARS_2_comb),axis=0)
 virus_comb=pca.fit_transform(virus_comb)
 

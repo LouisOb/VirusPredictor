@@ -1,4 +1,5 @@
 from collections import Counter
+from numpy import array
 
 class virus:
 	def __init__(self,virus_dna):
@@ -16,6 +17,8 @@ class virus_species:
 		if(type(virus_dna)==list):
 			self.virus_dna_list=[]
 			for element in virus_dna:
+				if(len(element["RNA"])<28000):
+					continue
 				self.virus_dna_list.append(virus(element))
 	
 	def ntuple(self,N):
@@ -26,5 +29,5 @@ class virus_species:
 		count=[]
 		for Tup in na_comb:
 			tuplelist=self.ntuple(len(Tup))
-			count.append([[tuplelist[i][Tup]] for i in range(len(tuplelist))])
+			count.append(array([[tuplelist[i][Tup]] for i in range(len(tuplelist))]))
 		return tuple(count)
