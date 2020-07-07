@@ -10,6 +10,8 @@ class virus:
 	def ntuple(self,N):
 		Split_DNA=[self._DNA[i:i+N] for i in range(0,len(self._DNA),N)]
 		Tuplecomb = dict(Counter(Split_DNA))
+		for item in Tuplecomb:
+			Tuplecomb[item]=Tuplecomb[item]/len(self._DNA)
 		return Tuplecomb
 
 class virus_species:
@@ -17,8 +19,6 @@ class virus_species:
 		if(type(virus_dna)==list):
 			self.virus_dna_list=[]
 			for element in virus_dna:
-				if(len(element["RNA"])<28000):
-					continue
 				self.virus_dna_list.append(virus(element))
 	
 	def ntuple(self,N):
@@ -27,7 +27,18 @@ class virus_species:
 	
 	def na_count(self,na_comb):
 		count=[]
+		tuplelist=self.ntuple(len(na_comb[0]))
 		for Tup in na_comb:
-			tuplelist=self.ntuple(len(Tup))
+			for item in list(tuplelist):
+				if Tup not in item.keys():
+					tuplelist.remove(item)
+					continue
+
+		for item in tuplelist:
+			for key in list(item.keys()):
+				if key not in na_comb:
+					del item[key]
+
+		for Tup in na_comb:
 			count.append(array([[tuplelist[i][Tup]] for i in range(len(tuplelist))]))
-		return tuple(count)
+		return count
