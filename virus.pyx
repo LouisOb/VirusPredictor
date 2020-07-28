@@ -1,5 +1,6 @@
 from collections import Counter
 from numpy import array
+from Bio import SeqIO
 
 class virus:
 	def __init__(self,virus_dna):
@@ -15,7 +16,7 @@ class virus:
 			Tuplecomb[item]=Tuplecomb[item]/len(listing)
 		return Tuplecomb
 	
-	def ORF(self,length=10000):
+	def ORF(self,length=12000):
 		start=['A','T','G']
 		stop=[['T','A','G'],['T','G','A'],['T','A','A']]
 		starters=[[],[],[]]
@@ -103,5 +104,13 @@ class virus_species:
 					del item[key]
 		result=[]
 		for Tup in na_comb:
-			result.append([[count[i][Tup]] for i in range(len(count))])
-		return result
+			result.append([count[i][Tup] for i in range(len(count))])
+
+		return array(result)
+
+def readfile(filename):
+	DNA=[]
+	with open(filename,"r") as fastafile:
+		for sequence in SeqIO.parse(fastafile,"fasta"):
+			DNA.append({"RNA":sequence.seq,"NAME":sequence.name})			
+	return DNA;
