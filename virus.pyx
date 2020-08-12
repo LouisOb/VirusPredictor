@@ -16,7 +16,7 @@ class virus:
 			Tuplecomb[item]=Tuplecomb[item]/len(listing)
 		return Tuplecomb
 	
-	def ORF(self,length=12000):
+	def ORF(self,length=13000):
 		start=['A','T','G']
 		stop=[['T','A','G'],['T','G','A'],['T','A','A']]
 		starters=[[],[],[]]
