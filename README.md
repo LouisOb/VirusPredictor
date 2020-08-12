@@ -1,9 +1,9 @@
-#Virus Classification
+# Virus Classification
 
 A project which engages with the topic of virus classification.
 The classification is based on RNA sequences as a result of a sequencing tool.
 
-##Virus.pyx
+## Virus.pyx
 Contains the main functions used to count Nucleobase tuples or search for ORFs in sequences.
 The virus and virus_species classes are used to achieve this.
 Read in sequences are passed for initialization of the virus_species object, which itself will initialize virus objects.
@@ -25,7 +25,7 @@ SARS_2_list=virus_species(DNA_SARS_COV_2)
 SARS_2_list_plot = SARS_2_list.na_count(Tup)
 ```
 
-##Fingerprint.py
+## Fingerprint.py
 Contains the functions to identify a common pattern of nucleobases and aminoacids after translation in a virus DNA sequence.
 A fasta file which contains the Virus DNA sequences has to be passed to the functions.
 
