@@ -1,120 +1,156 @@
 #!/usr/bin/python3
+import pyximport; pyximport.install()
 import sklearn
 from sklearn.decomposition import PCA
+from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import pickle as pk
 import numpy as np
 from virus import virus, virus_species, readfile
+from os import listdir
 
-pca = sklearn.decomposition.PCA(n_components=2) 
+class clustering:
+	DNA_set		= []
+	viruslist	= None
+	colors		= ["green","red","blue","black","purple","orange","pink","yellow","darkgoldenrod","deepskyblue","grey","lime","cyan"]
+	plot_colors	= []
+	tuples		= None
+	tuple_count	= []
+	orf_count	= []
+	plot_list	= []
+	names 		= []
+	mode		= None
 
-#load DNA of viruses
-DNA_MERS=readfile("MERS.fasta")
-DNA_SARS_COV_1=readfile("SARS-CoV-1.fasta.txt")
-DNA_SARS_COV_2=readfile("SARS_COV_2.fasta")
-DNA_HEPA=readfile("Hepatitis_C_1b.fasta")
-DNA_HERPES=readfile("HERPES.fasta")
+	def __init__(self,tuples_list):
+		self.tuples=tuples_list
 
-#Introduce Tuple that are searched for in the sequence
-NA = ["A","C","G","T"]
-Tup = []
-for na1 in NA:
-	for na2 in NA:
-		for na3 in NA:
-					Tup.append(na1+na2+na3)
+	def add(self,filename,name=[]):
+		if(type(filename)==str):
+			if(name==[]):
+				self.names.append([filename,filename])
+			else:
+				self.names.append([name,filename])
+			DNA	= readfile("resources/"+filename)
+			self.DNA_set.append(DNA)
+		if(type(filename)==list):
+			if(name==[]):
+				for entry in filename:
+					self.names.append([entry,entry])
+			else:
+				for index in range(len(name)):
+					self.names.append([name[index],filename[index]])
+			for entry in filename:
+				DNA	= readfile("resources/"+entry)
+				self.DNA_set.append(DNA)
 
-#Setup the virus DNA Objects
+	def tuples(self):
+		self.clean()
+		self.mode = "tuples"
+		for listing in self.DNA_set:
+			self.viruslist.append(virus_species(listing))
+		for index in range(len(self.viruslist)):
+			if(self.names[index][1]+".pk" in listdir("./save")):
+				check = self.load(self.names[index][1]+".pk")[0]
+				if( check.size > 0): 	
+					self.tuple_count.append(check)
+					continue
+			self.tuple_count.append(item.na_count(self.tuples))
+		self.save()
+		color_index=0
+		for entry in self.tuple_count:
+			for i in range(len(entry)):
+				self.plot_colors.append(self.colors[color_index])
+			color_index+=1
+	
+	def ORF_tuples(self,length=12000):
+		self.clean()
+		self.mode = "orf"
+		for listing in self.DNA_set:
+			self.viruslist.append(virus_species(listing))
+		for index in range(len(self.viruslist)):
+			if(self.names[index][1]+".pk" in listdir("./save")):
+				check = self.load(self.names[index][1]+".pk")[1]
+				if( check.size > 0): 
+					self.orf_count.append(check)
+					continue
+			self.orf_count.append(self.viruslist[index].ORF_count(self.tuples,length))
+		self.save()
+		color_index=0
+		for entry in self.orf_count:
+			for i in range(len(entry[0])):
+				self.plot_colors.append(self.colors[color_index])
+			color_index+=1
 
-HERPES_LIST=virus_species(DNA_HERPES)
-HERPES_LIST_plot=HERPES_LIST.na_count(Tup)
+	def PCA(self,components,use_old=False):
+		if(self.mode=="tuples"):
+			pca_list=np.hstack(self.tuple_count)
+		else:
+			pca_list=np.hstack(self.orf_count)
+		if(use_old):
+			Transformation_Mat 	= pk.load(open("Mat_pca.pk","rb"))
+			self.plot_list		= np.matmul(Transformation_Mat,pca_list).T
+		else:
+			pca 			= sklearn.decomposition.PCA(n_components=components)
+			self.plot_list 	= pca.fit_transform(pca_list.T)
+			pk.dump(pca.components_,open("Mat_pca.pk","wb"))
 
+	def plot(self,filename,title=""):
+		if(not len(self.plot_list)):
+			print("[Warning] No plot list availiable for object")
+			return
+		legend_elements = []
+		for index in range(len(self.names)):
+			legend_elements.append(Line2D([0], [0], marker='.', color="w", label=self.names[index][0], markerfacecolor=self.colors[index], markersize=11))
+		plt.scatter(self.plot_list.T[0],self.plot_list.T[1],c=self.plot_colors,marker='.')
+		plt.legend(handles=legend_elements, loc='best', borderaxespad=0.)
+		plt.title(title)
 
-#HERPES_comb = np.concatenate(HERPES_LIST_plot[:],axis=1)
-
-
-MERS_list=virus_species(DNA_MERS)
-MERS_list_plot = MERS_list.na_count(Tup)
-
-#MERS_comb = np.concatenate(MERS_list_plot[:],axis=1)
-
-SARS_1_list=virus_species(DNA_SARS_COV_1)
-SARS_list_plot = SARS_1_list.na_count(Tup)
-
-#SARS_1_comb = np.concatenate(SARS_list_plot[:],axis=1)
-
-SARS_2_list=virus_species(DNA_SARS_COV_2)
-SARS_2_list_plot = SARS_2_list.na_count(Tup)
-
-#SARS_2_comb = np.concatenate(SARS_2_list_plot[:],axis=1)
-
-HEPA_list = virus_species(DNA_HEPA)
-HEPA_list_plot=HEPA_list.na_count(Tup)
-
-#HEPA_comb = np.concatenate(HEPA_list_plot[:],axis=1)
-
-#Virus sequence DNA PCA with selected Tuples
-'''
-colour_mers=['blue' for i in range(len(MERS_comb))]
-colour_sars_1=['red' for i in range(len(SARS_1_comb))]
-colour_sars_2=['green' for i in range(len(SARS_2_comb))]
-colour_hepa=['purple' for i in range(len(HEPA_comb))]
-colour_herpes=['black' for i in range(len(HERPES_comb))]
-colour=colour_mers+colour_sars_1+colour_sars_2+colour_hepa#+colour_herpes
-
-
-virus_comb = np.concatenate((MERS_comb,SARS_1_comb,SARS_2_comb,HEPA_comb),axis=0)
-virus_comb=pca.fit_transform(virus_comb)'''
-#plt.scatter(virus_comb.T[0],virus_comb.T[1],c=colour)
-#plt.legend()
-#plt.show()
-
-#Find ORFs in Virus DNA sequence and count Tuple occurence
-
-SARS_2_ORFs=SARS_2_list.ORF_count(Tup)
-SARS_1_ORFs=SARS_1_list.ORF_count(Tup)
-MERS_ORFs=MERS_list.ORF_count(Tup)
-#HERPES_ORFs=HERPES_LIST.ORF_count(Tup)
-#HEPA_ORFs=HEPA_list.ORF_count(Tup)
-
-colour_mers=['blue' for i in range(len(MERS_ORFs.T))]
-colour_sars_1=['red' for i in range(len(SARS_1_ORFs.T))]
-colour_sars_2=['green' for i in range(len(SARS_2_ORFs.T))]
-#colour_hepa=['purple' for i in range(len(HEPA_ORFs.T))]
-#colour_herpes=['black' for i in range(len(HERPES_ORFs.T))]
-
-colour=colour_mers+colour_sars_1+colour_sars_2#+colour_herpes+colour_hepa
-
-virus_comb = np.concatenate((MERS_ORFs,SARS_1_ORFs,SARS_2_ORFs),axis=1)#,HERPES_ORFs,HEPA_ORFs),axis=1)
-
-
-#PCA with ORF Tuple count data
-
-#Transformation_Mat = pk.load(open("3tuple_pca.pk","rb"))
-#DNA_ORFs=np.matmul(Transformation_Mat,virus_comb)
-
-
-virus_comb = pca.fit_transform(virus_comb.T)
-pk.dump(pca.components_,open("3tuple_pca_new.pk","wb"))
-
-
-#Histograms with the Tuple distribution
-'''
-for i in range(len(Tup)):
-		plt.hist([SARS_2_ORFs[i][j] for j in range(len(SARS_2_ORFs[i]))],bins=20,alpha=.5,facecolor="green",label="SARS-CoV 2")
-		plt.hist([SARS_1_ORFs[i][j] for j in range(len(SARS_1_ORFs[i]))],bins=20,alpha=.5,facecolor="red",label="SARS")
-		plt.hist([MERS_ORFs[i][j] for j in range(len(MERS_ORFs[i]))],bins=20,alpha=.5,facecolor="blue",label="MERS")
-#		plt.hist(virus_comb[i],10,color=["blue","red","green"])
-		plt.xlabel(Tup[i])
-		plt.legend()
-		plt.savefig("pics/"+Tup[i]+".png",pad_inches=0.1,bbox_inches='tight')
-#		plt.show()
+		plt.gcf().set_size_inches(10, plt.gcf().get_size_inches()[1])
+		plt.xlabel("PCA feature combination 0")
+		plt.ylabel("PCA feature combination 1")
+		plt.savefig("pics/"+filename,bbox_inches='tight',dpi=250)
 		plt.close()
-'''
 
-plt.scatter(virus_comb.T[0],virus_comb.T[1],c=colour)
-plt.title(str(Tup)+" PCA Feature Space")
-plt.show()
+	def load(self,filename):
+		return pk.load(open("save/"+filename,"rb"))
+		
+	def save(self):
+		for index in range(len(self.names)):
+			if(self.tuple_count==[]):
+				dump_array = [[],self.orf_count[index]]
+			elif(self.orf_count==[]):
+				dump_array = [self.tuple_count[index],[]]
+			else:
+				dump_array = [self.tuple_count[index],self.orf_count[index]]
+			pk.dump(dump_array,open("save/"+self.names[index][1]+".pk","wb"))
+	
+	def clean(self):
+		self.viruslist		= []
+		self.plot_colors	= []
+		self.tuple_count	= []
 
+
+if __name__ == "__main__":
+
+	#Introduce Tuple that are searched for in the sequence
+	NA = ["A","C","G","T"]
+	Tup = []
+	for na1 in NA:
+		for na2 in NA:
+			for na3 in NA:
+						Tup.append(na1+na2+na3)
+
+	testlist=clustering(Tup)
+#	testlist.add("Duck_coronavirus.fasta")
+	testlist.add(["SARS_COV_2_new_new.fasta","SARS-CoV-1.fasta.txt","MERS.fasta","Bovine_coronavirus.fasta","Camel_alphacoronavirus.fasta","Duck_coronavirus.fasta"],["SARS CoV 2","SARS","MERS","Bovine corona virus","Camel alpha corona virus","Duck corona virus"])
+#	testlist.add(["SARS_COV_2_new.fasta","SARS_COV_1.fasta","MERS.fasta"],["SARS CoV 2","SARS","MERS"])
+#	testlist.add(["Alpha_Herpes_virus.fasta","Beta_Herpes_virus.fasta","Gamma_Herpes_virus.fasta"],["Alpha herpes virus","Beta herpes virus","Gamma herpes virus"])
+#	testlist.add(["Mastadeno_A.fasta","Mastadeno_B.fasta","Mastadeno_C.fasta","Mastadeno_D.fasta","Mastadeno_E.fasta","Mastadeno_F.fasta"],["Mastadeno A virus", "Mastadeno B virus", "Mastadeno C virus", "Mastadeno D virus", "Mastadeno E virus", "Mastadeno F virus"])
+#	testlist.add(["Vaccinia_virus.fasta","Variola_virus.fasta","Cowpox_virus.fasta"],["Vaccinia virus", "Variola virus", "Cowpox virus"])
+	testlist.ORF_tuples(11000)
+	testlist.PCA(2,True)
+	testlist.plot("SARSfamily_ORF11000.png")
+#	testlist.plot("herpes_corona_family.png")
 
 
 

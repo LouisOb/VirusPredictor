@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from virus import virus, virus_species, readfile
+import random
 import pickle as pk
 import sys
 
@@ -59,13 +60,13 @@ def ORF_scan(filename):
 	returns:
 	"""
 	ORFs=ORF_read(filename)
+	random.shuffle(ORFs)
 	lengths=[]
 	for item in ORFs:
 		for item1 in item:
 			lengths.append(len(item1['ORF']))
 	
 	minimum = min(lengths)
-		
 
 	Fingerprint=[]
 	counter=0
@@ -121,6 +122,7 @@ def ORF_scan(filename):
 	if(counter==len(Fingerprint)-3):
 		raise MissingFingerprint
 	pk.dump(Fingerprint,open("Fingerprint",'wb'))
+	print(Fingerprint)
 
 
 
