@@ -26,7 +26,7 @@ SARS_2_list_plot = SARS_2_list.na_count(Tup)
 ```
 
 ## Clustering.py
-Contains the funtions to extract features from nucleobase combinations of virus genome sequences. The combination of featurized tuples is passed to initialize the clustering object.
+Contains the funtions to extract features from nucleobase combinations of virus genome sequences. The combination of nucleobased used as features is passed to initialize the clustering object.
 ```python
 import clustering
 
