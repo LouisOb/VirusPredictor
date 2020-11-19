@@ -4,7 +4,7 @@ A project which engages with the topic of virus classification.
 The classification is based on RNA sequences as a result of a sequencing tool.
 
 ## Virus.pyx
-Contains the main functions used to count Nucleobase tuples or search for ORFs in sequences.
+Contains the main functions used to count nucleobase tuples or search for ORFs in sequences.
 The virus and virus_species classes are used to achieve this.
 Read in sequences are passed for initialization of the virus_species object, which itself will initialize virus objects.
 The virus species object can then be used to return Tuple counts or ORFs.
@@ -26,7 +26,7 @@ SARS_2_list_plot = SARS_2_list.na_count(Tup)
 ```
 
 ## Clustering.py
-Contains the funtions to extract features from nucleobase combinations of virus genome sequences. The combination of nucleobased used as features is passed to initialize the clustering object.
+Contains the funtions to extract features from nucleobase combinations of virus genome sequences. The combination of nucleobases used as features is passed to initialize the clustering object.
 ```python
 import clustering
 
