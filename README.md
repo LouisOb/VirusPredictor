@@ -44,13 +44,3 @@ import clustering
 	viruslist.PCA(2,True)
 	viruslist.plot("Coronafamily_test.png")
 ```
-
-[//]: # ## Fingerprint.py
-[//]: #Contains the functions to identify a common pattern of nucleobases and aminoacids after translation in a virus DNA sequence.
-[//]: #A fasta file which contains the Virus DNA sequences has to be passed to the functions.
-[//]: # ```python
-[//]: # import Fingerprint
-[//]: # Fingerprint.ORF_scan("SARS-CoV-1.fasta.txt")
-[//]: # Fingerprint.test_identity("SARS-CoV-1.fasta.txt")
-[//]: # ```
-[//]: # It will then print the percentage of the sequences in the file containing the discovered pattern.
